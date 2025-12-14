@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      
+      - name: Check formatting
+        run: cargo fmt --check
+      
+      - name: Clippy (linter)
+        run: cargo clippy -- -D warnings
+      
+      - name: Run tests
+        run: cargo test
+      
+      - name: Build release
+        run: cargo build --release
+      
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: url-shortener
+          path: target/release/url-shortener
